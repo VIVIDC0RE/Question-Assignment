@@ -1,6 +1,6 @@
 [package]
 name        = "vividc0re/question-assignment"
-version     = "1.0.1"
+version     = "1.0.3"
 registry    = "https://github.com/UpliftGames/wally-index"
 realm       = "shared"
 description = "A secure, server-authoritative quiz and application system for Roblox. Handles dynamic question assignment, shuffled answer options, sequential response validation, anti-exploit spoofing signals, and score grading — all with no client-side trust."

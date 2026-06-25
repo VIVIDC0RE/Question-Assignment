@@ -16,18 +16,18 @@ local QuestionAssignment = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Signal        = require(ReplicatedStorage.Packages.Signal)
-local TableUtil     = require(ReplicatedStorage.Packages.TableUtil)
+local Signal = require(ReplicatedStorage.Packages.Signal)
+local TableUtil = require(ReplicatedStorage.Packages.TableUtil)
 local Configuration = require(script.Configuration)
 
 QuestionAssignment.TotalQuestions = Configuration.totalQuestions
-QuestionAssignment.MaxStrikes     = Configuration.maximumStrikes
-QuestionAssignment.AllEntries     = require(script.Entries)
+QuestionAssignment.MaxStrikes = Configuration.maximumStrikes
+QuestionAssignment.AllEntries = require(script.Entries)
 
 local PlayerData = {}
 
-QuestionAssignment.OnSpoofed             = Signal.new() -- optional signal for when a player exploits
-QuestionAssignment.OnStrikeThresholdMet  = Signal.new() -- optional signal for strike threshold
+QuestionAssignment.OnSpoofed = Signal.new() -- optional signal for when a player exploits
+QuestionAssignment.OnStrikeThresholdMet = Signal.new() -- optional signal for strike threshold
 
 --[=[
     Validates that the input is a Player instance.
@@ -84,8 +84,8 @@ end
     @return (table) A cloned and shuffled version of the question with updated correctIndex.
 ]=]
 local function CloneQuestion(original)
-	local clonedOptions  = table.clone(original.answerOptions)
-	local correctAnswer  = original.answerOptions[original.correctIndex]
+	local clonedOptions = table.clone(original.answerOptions)
+	local correctAnswer = original.answerOptions[original.correctIndex]
 	local correctAnswerText = correctAnswer.responseText
 
 	local shuffledOptions = TableUtil.Shuffle(clonedOptions)
@@ -99,9 +99,9 @@ local function CloneQuestion(original)
 	end
 
 	return {
-		questionText  = original.questionText,
+		questionText = original.questionText,
 		answerOptions = shuffledOptions,
-		correctIndex  = newCorrectIndex,
+		correctIndex = newCorrectIndex,
 	}
 end
 
@@ -151,7 +151,7 @@ function QuestionAssignment.AssignQuestionsToPlayer(player, clientSafe)
 	local questionsToSelect = math.min(QuestionAssignment.TotalQuestions, #QuestionAssignment.AllEntries)
 	assert(questionsToSelect >= 1, "[AssignQuestionsToPlayer] No questions available")
 
-	local shuffledPool      = TableUtil.Shuffle(table.clone(QuestionAssignment.AllEntries))
+	local shuffledPool = TableUtil.Shuffle(table.clone(QuestionAssignment.AllEntries))
 	local selectedQuestions = {}
 
 	for i = 1, questionsToSelect do
@@ -166,11 +166,11 @@ function QuestionAssignment.AssignQuestionsToPlayer(player, clientSafe)
 	end
 
 	PlayerData[player.UserId] = {
-		questions            = selectedQuestions,
-		responses            = {},
-		strikes              = 0,
+		questions = selectedQuestions,
+		responses = {},
+		strikes = 0,
 		currentQuestionIndex = 1,
-		correctCount         = 0,
+		correctCount = 0,
 	}
 
 	if clientSafe then
@@ -192,7 +192,9 @@ function QuestionAssignment.GetPlayerQuestions(player, clientSafe)
 	ValidatePlayer(player)
 
 	local info = GetPlayerInfo(player)
-	if not info then return false end
+	if not info then
+		return false
+	end
 
 	if not clientSafe then
 		return info.questions
@@ -201,7 +203,7 @@ function QuestionAssignment.GetPlayerQuestions(player, clientSafe)
 	local clientCopy = {}
 	for i, question in ipairs(info.questions) do
 		local safeQuestion = {
-			questionText  = question.questionText,
+			questionText = question.questionText,
 			answerOptions = {},
 		}
 		for j, option in ipairs(question.answerOptions) do
@@ -223,14 +225,18 @@ end
 ]=]
 function QuestionAssignment.IsCorrectAnswer(player, questionIndex, selectedAnswer)
 	ValidatePlayer(player)
-	assert(type(questionIndex) == "number",   "[QuestionAssignment] Invalid question index")
-	assert(type(selectedAnswer) == "string",  "[QuestionAssignment] Invalid answer")
+	assert(type(questionIndex) == "number", "[QuestionAssignment] Invalid question index")
+	assert(type(selectedAnswer) == "string", "[QuestionAssignment] Invalid answer")
 
 	local info = GetPlayerInfo(player)
-	if not info then return false end
+	if not info then
+		return false
+	end
 
 	local question = info.questions[questionIndex]
-	if not question then return false end
+	if not question then
+		return false
+	end
 
 	return IsCorrectAnswerForQuestion(question, selectedAnswer)
 end
@@ -265,11 +271,13 @@ end
 ]=]
 function QuestionAssignment.AddResponse(player, questionIndex, selectedAnswer)
 	ValidatePlayer(player)
-	assert(type(questionIndex) == "number",   "[QuestionAssignment] Invalid question index")
-	assert(type(selectedAnswer) == "string",  "[QuestionAssignment] SelectedAnswer must be a string")
+	assert(type(questionIndex) == "number", "[QuestionAssignment] Invalid question index")
+	assert(type(selectedAnswer) == "string", "[QuestionAssignment] SelectedAnswer must be a string")
 
 	local info, spoofResult = GetValidatedPlayerInfo(player, "playerData does not exist.")
-	if not info then return spoofResult end
+	if not info then
+		return spoofResult
+	end
 
 	if info.responses[questionIndex] then
 		return Spoof(player, "Attempted to overwrite previous answer.")
@@ -287,7 +295,7 @@ function QuestionAssignment.AddResponse(player, questionIndex, selectedAnswer)
 	local isCorrect = IsCorrectAnswerForQuestion(question, selectedAnswer)
 
 	info.responses[questionIndex] = {
-		answer  = selectedAnswer,
+		answer = selectedAnswer,
 		correct = isCorrect,
 	}
 
@@ -321,7 +329,9 @@ function QuestionAssignment.GradeApplication(player)
 	ValidatePlayer(player)
 
 	local info, spoofResult = GetValidatedPlayerInfo(player, "playerData does not exist during grading.")
-	if not info then return spoofResult end
+	if not info then
+		return spoofResult
+	end
 
 	local questions = info.questions
 	local responses = info.responses
@@ -331,7 +341,7 @@ function QuestionAssignment.GradeApplication(player)
 		return Spoof(player, "Attempted to grade before all questions were answered.")
 	end
 
-	local correct   = info.correctCount
+	local correct = info.correctCount
 	local incorrect = #questions - correct
 
 	return correct, incorrect
