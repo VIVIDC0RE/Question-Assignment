@@ -1,0 +1,10 @@
+[package]
+name = "vividc0re/tableutil"
+version = "1.0.0"
+description = "A collection of helpful table utility functions. Many of these functions are carried over from JavaScript or Python that are not present in Lua."
+license = "MIT"
+authors = ["sleitnick"]
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
